@@ -1,38 +1,50 @@
 const Sequelize = require('sequelize');
-const db = new Sequelize('postgres://localhost:5432/acme');
+const db = new Sequelize('postgres://localhost:5432/acme_people_places_things');
 
-const Person = db.define('person',{
-    name:{
-        type:Sequelize.STRING,
-        allowNull:false,
-        unique:true
-    }
+const Persons = db.define('persons', {
+	name: {
+		type: Sequelize.STRING,
+		allowNull: false,
+		unique: true,
+	},
 });
-const Place = db.define('place',{
-    name:{
-        type:Sequelize.STRING,
-        allowNull:false,
-        unique:true
-    }
+const Places = db.define('places', {
+	name: {
+		type: Sequelize.STRING,
+		allowNull: false,
+		unique: true,
+	},
 });
-const Thing = db.define('thing',{
-    name:{
-        type:Sequelize.STRING,
-        allowNull:false,
-        unique:true
-    }
+const Things = db.define('things', {
+	name: {
+		type: Sequelize.STRING,
+		allowNull: false,
+		unique: true,
+	},
 });
 
-const Souvenir = db.define('souvenir');
+// Old implementation:
+// const Souvenirs = db.define('souvenirs');
+// Souvenirs.belongsTo(Persons);
+// Souvenirs.belongsTo(Places);
+// Souvenirs.belongsTo(Things);
 
-Souvenir.belongsTo(Person);
-Souvenir.belongsTo(Place);
-Souvenir.belongsTo(Thing);
+// New implementation:
+// Because souv is many-to-many with all three models.
+const Souvenirs = db.define('souvenirs');
+Souvenirs.belongsToMany(Persons, { through: 'PersonsSouvenirs' });
+Persons.belongsToMany(Souvenirs, { through: 'PersonsSouvenirs' });
+
+Souvenirs.belongsToMany(Places, { through: 'PlacesSouvenirs' });
+Places.belongsToMany(Souvenirs, { through: 'PlacesSouvenirs' });
+
+Souvenirs.belongsToMany(Things, { through: 'ThingsSouvenirs' });
+Things.belongsToMany(Souvenirs, { through: 'ThingsSouvenirs' });
 
 module.exports = {
-    db,
-    Person,
-    Place,
-    Thing,
-    Souvenir
+	db,
+	Persons,
+	Places,
+	Things,
+	Souvenirs,
 };
