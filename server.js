@@ -1,4 +1,5 @@
 const express = require('express');
+
 const app = express();
 
 // Volleyball Middleware
@@ -18,6 +19,25 @@ app.use(express.json());
 // Database imports
 const { Persons, Places, Things, Souvenirs } = require('./db');
 
+// Method Override
+// To allow DELETE reqest from an html form
+const methodOverride = require('method-override');
+app.use(methodOverride('_method'));
+
+// Deletes souv of given ID, uses method-override, from form:
+// 	<form method='POST' action='/${souv.id}?_method=DELETE'>
+app.delete('/:id', async (req, res, next) => {
+	try {
+		const id = +req.params.id;
+		const foundSouv = await Souvenirs.findByPk(id); // Find it
+		await foundSouv.destroy(); // Delete it
+		res.redirect('/');
+	} catch (err) {
+		next(err);
+	}
+});
+
+// Creates new souv with user-submitted POST
 app.post('/', async (req, res, next) => {
 	try {
 		await Souvenirs.create(req.body);
@@ -27,7 +47,7 @@ app.post('/', async (req, res, next) => {
 	}
 });
 
-app.get('/', async (req, res) => {
+app.get('/', async (req, res, next) => {
 	try {
 		const people = await Persons.findAll();
 		const places = await Places.findAll();
@@ -57,7 +77,11 @@ app.get('/', async (req, res) => {
 					${souvs
 						.map(
 							(souv) =>
-								`<li>${souv.person.name} purchased a ${souv.thing.name} in ${souv.place.name}.</li>`
+								`<li>${souv.person.name} purchased a ${souv.thing.name} in ${souv.place.name}.
+								<form method='POST' action='/${souv.id}?_method=DELETE'>
+                <button> Delete </button>
+              	</form>
+								</li>`
 						)
 						.join('')}
 				</ul>
