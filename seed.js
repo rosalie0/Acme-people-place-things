@@ -46,27 +46,6 @@ const seedSmallDB = async () => {
 	const paris = await Places.create({ name: 'paris' });
 	const nyc = await Places.create({ name: 'nyc' });
 
-	// New implementation which has models:
-	// PersonsSouvenirs, PlacesSouvenirs, ThingsSouvenirs
-
-	// Moe has a hat from london
-	const souv1 = Souvenirs.create({});
-
-	await PersonsSouvenirs.create({
-		personId: moe.id,
-		souvenirId: souv1.id,
-	});
-
-	await PlacesSouvenirs.create({
-		placeId: london.id,
-		souvenirId: souv1.id,
-	});
-
-	await ThingsSouvenirs.create({
-		thingId: hat.id,
-		souvenirId: souv1.id,
-	});
-
 	// Old implementation
 	// Moe has a hat from london
 	// Moe has a bag from paris
