@@ -1,6 +1,12 @@
 const express = require('express');
-
 const app = express();
+
+// Import Databases
+const { Persons, Places, Things, Souvenirs } = require('./db');
+
+// Import Viewsg
+const listEverything = require('./views/listEverything');
+const purchaseForm = require('./views/purchaseForm');
 
 // Volleyball Middleware
 const volleyball = require('volleyball');
@@ -16,11 +22,7 @@ app.use(staticMiddleware);
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// Database imports
-const { Persons, Places, Things, Souvenirs } = require('./db');
-
-// Method Override
-// To allow DELETE reqest from an html form
+// Method Override: Allows DELETE reqest from an html form
 const methodOverride = require('method-override');
 app.use(methodOverride('_method'));
 
@@ -57,37 +59,7 @@ app.get('/', async (req, res, next) => {
 		const souvs = await Souvenirs.findAll({
 			include: [Persons, Things, Places],
 		});
-		const html = `
-			<body>
-				<h1>Acme People, Places, and Things</h1>
-				<h2>People</h2>
-				<ul>
-						${people.map((person) => `<li>${person.name}</li>`).join('')}
-				</ul>
-				<h2>Places</h2>
-				<ul>
-						${places.map((place) => `<li>${place.name}</li>`).join('')}
-				</ul>
-				<h2>Things</h2>
-				<ul>
-						${things.map((thing) => `<li>${thing.name}</li>`).join('')}
-				</ul>
-				<h2> Souvenir Purchases </h2>
-				<ul>
-					${souvs
-						.map(
-							(souv) =>
-								`<li>${souv.person.name} purchased a ${souv.thing.name} in ${souv.place.name}.
-								<form method='POST' action='/${souv.id}?_method=DELETE'>
-                <button> Delete </button>
-              	</form>
-								</li>`
-						)
-						.join('')}
-				</ul>
-				<a href="/purchase"> Purchase a souvenir? </a>
-			</body>
-		`;
+		const html = listEverything(people, places, things, souvs);
 		res.send(html);
 	} catch (err) {
 		next(err);
@@ -101,43 +73,8 @@ app.get('/purchase', async (req, res, next) => {
 		const people = await Persons.findAll();
 		const places = await Places.findAll();
 		const things = await Things.findAll();
-		res.send(`
-		<form method='POST' action="/">
-            <select name='personId'>
-              ${people
-								.map(
-									(person) => `
-                    <option value=${person.id}>
-                      ${person.name}
-                    </option>
-                  `
-								)
-								.join('')}
-            </select>
-
-            <select name='placeId'>
-              ${places
-								.map(
-									(place) => `
-                    <option value=${place.id}>
-                      ${place.name}
-                    </option>
-                  `
-								)
-								.join('')}
-            </select>
-
-            <select name='thingId'>
-									${things.map(
-										(thing) => `
-									<option value=${thing.id}>
-										${thing.name}
-									</option>`
-									)}
-						</select>
-
-            <button>Purchase</button>
-          </form>`);
+		const html = purchaseForm(people, places, things);
+		res.send(html);
 	} catch (err) {
 		next(err);
 	}

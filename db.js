@@ -1,4 +1,8 @@
 const Sequelize = require('sequelize');
+const db = new Sequelize(
+	'postgres://localhost:5432/acme_people_places_things',
+	{ logging: false }
+);
 
 // This should prevent sequelize logging to console all its queries?
 // Error: Dialect needs to be explicitly supplied as of v4.0.0
@@ -14,32 +18,65 @@ const Sequelize = require('sequelize');
 // 	}
 // );
 
-const db = new Sequelize('postgres://localhost:5432/acme_people_places_things');
+const Persons = db.define(
+	'persons',
+	{
+		name: {
+			type: Sequelize.STRING,
+			allowNull: false,
+			unique: true,
+			get() {
+				const firstLetter = this.getDataValue('name')[0].toUpperCase();
+				return firstLetter + this.getDataValue('name').slice(1);
+			},
+		},
+	},
+	{ timestamps: false }
+);
+const Places = db.define(
+	'places',
+	{
+		name: {
+			type: Sequelize.STRING,
+			allowNull: false,
+			unique: true,
+			get() {
+				const firstLetter = this.getDataValue('name')[0].toUpperCase();
+				return firstLetter + this.getDataValue('name').slice(1);
+			},
+		},
+	},
+	{ timestamps: false }
+);
 
-const Persons = db.define('persons', {
-	name: {
-		type: Sequelize.STRING,
-		allowNull: false,
-		unique: true,
+const Things = db.define(
+	'things',
+	{
+		name: {
+			type: Sequelize.STRING,
+			allowNull: false,
+			unique: true,
+		},
 	},
-});
-const Places = db.define('places', {
-	name: {
-		type: Sequelize.STRING,
-		allowNull: false,
-		unique: true,
-	},
-});
-const Things = db.define('things', {
-	name: {
-		type: Sequelize.STRING,
-		allowNull: false,
-		unique: true,
-	},
-});
+	{ timestamps: false }
+);
 
-// Old implementation:
-const Souvenirs = db.define('souvenirs');
+const Souvenirs = db.define(
+	'souvenirs',
+	{
+		count: {
+			type: Sequelize.INTEGER,
+			defaultValue: 1,
+		},
+		purchasedOn: {
+			type: Sequelize.DATE,
+			defaultValue: Sequelize.NOW,
+		},
+	},
+	{ timestamps: false }
+);
+
+// Associations
 Souvenirs.belongsTo(Persons);
 Souvenirs.belongsTo(Places);
 Souvenirs.belongsTo(Things);

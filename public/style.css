@@ -1,0 +1,21 @@
+body {
+	background-color: rgb(196, 228, 255);
+}
+form {
+	display: inline;
+}
+h1 {
+	color: red;
+}
+h2 {
+	color: grey;
+}
+.ptp-container {
+	display: flex;
+	gap: 100px;
+}
+.ptp-container div {
+	border: 1px solid black;
+	background-color: white;
+	padding: 10px;
+}
