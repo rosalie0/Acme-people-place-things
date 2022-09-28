@@ -31,34 +31,55 @@ const seedDB = async () => {
 };
 
 // TODO:
-// Moe has a bag from paris
-// Ethyl has a shirt from nyc
+
 const seedSmallDB = async () => {
 	await db.sync({ force: true, logging: false });
 
 	const moe = await Persons.create({ name: 'moe' });
+	const ethyl = await Persons.create({ name: 'ethyl' });
 
-	const flag = await Things.create({ name: 'flag' });
 	const hat = await Things.create({ name: 'hat' });
+	const bag = await Things.create({ name: 'bag' });
+	const shirt = await Things.create({ name: 'shirt' });
 
-	const nyc = await Places.create({ name: 'nyc' });
-	const tokyo = await Places.create({ name: 'tokyo' });
 	const london = await Places.create({ name: 'london' });
+	const paris = await Places.create({ name: 'paris' });
+	const nyc = await Places.create({ name: 'nyc' });
 
-	// New implementation which feels very wrong
+	// New implementation which has models:
+	// PersonsSouvenirs, PlacesSouvenirs, ThingsSouvenirs
+
 	// Moe has a hat from london
+	const souv1 = Souvenirs.create({});
+
 	await PersonsSouvenirs.create({
 		personId: moe.id,
-		souvenirId: 1,
+		souvenirId: souv1.id,
+	});
+
+	await PlacesSouvenirs.create({
+		placeId: london.id,
+		souvenirId: souv1.id,
+	});
+
+	await ThingsSouvenirs.create({
+		thingId: hat.id,
+		souvenirId: souv1.id,
 	});
 
 	// Old implementation
 	// Moe has a hat from london
-	// const souv1 = await Souvenirs.create({
-	// 	personId: moe.id,
-	// 	thingId: hat.id,
-	// 	placeId: london.id,
-	// });
+	// Moe has a bag from paris
+	// Ethyl has a shirt from nyc
+	await Promise.all([
+		Souvenirs.create({ personId: moe.id, thingId: hat.id, placeId: london.id }),
+		Souvenirs.create({ personId: moe.id, thingId: bag.id, placeId: paris.id }),
+		Souvenirs.create({
+			personId: ethyl.id,
+			thingId: shirt.id,
+			placeId: nyc.id,
+		}),
+	]);
 };
 
 seedSmallDB();
