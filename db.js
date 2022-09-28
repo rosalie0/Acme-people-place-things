@@ -1,4 +1,19 @@
 const Sequelize = require('sequelize');
+
+// This should prevent sequelize logging to console all its queries?
+// Error: Dialect needs to be explicitly supplied as of v4.0.0
+// const sequelize = new Sequelize(
+// 	'db',
+// 	'Persons',
+// 	'Places',
+// 	'Things',
+// 	'Souvenirs',
+// 	{
+// 		dialect: 'postgres',
+// 		logging: false,
+// 	}
+// );
+
 const db = new Sequelize('postgres://localhost:5432/acme_people_places_things');
 
 const Persons = db.define('persons', {
